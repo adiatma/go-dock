@@ -67,8 +67,8 @@ func Images(w http.ResponseWriter, r *http.Request) {
 	res := ImagesResponse{}
 	res.Status = http.StatusOK
 	dockerClient := DockerClient()
-	images, _ := dockerClient.ImageList(context.Background(), types.ImageListOptions{})
-	res.Images = images
+	imageList, _ := dockerClient.ImageList(context.Background(), types.ImageListOptions{})
+	res.Images = imageList
 	json.NewEncoder(w).Encode(res)
 }
 
@@ -79,9 +79,9 @@ func ImagesSearch(w http.ResponseWriter, r *http.Request) {
 	res.Status = http.StatusOK
 	res.Term = term
 	dockerClient := DockerClient()
-	searchTerm, _ := dockerClient.ImageSearch(context.Background(), term, types.ImageSearchOptions{
+	imageSearch, _ := dockerClient.ImageSearch(context.Background(), term, types.ImageSearchOptions{
 		Limit: 100,
 	})
-	res.Images = searchTerm
+	res.Images = imageSearch
 	json.NewEncoder(w).Encode(res)
 }
