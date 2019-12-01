@@ -28,8 +28,14 @@ type ImagesSearchResponse struct {
 
 // DiskUsageResponse type
 type DiskUsageResponse struct {
-	Status   int         `json:"status"`
-	DiskInfo interface{} `json:"disk_info"`
+	Status    int         `json:"status"`
+	DiskUsage interface{} `json:"disk_usage"`
+}
+
+// InfoResponse type
+type InfoResponse struct {
+	Status       int         `json:"status"`
+	InfoResponse interface{} `json:"info"`
 }
 
 // AbsoultePath type
@@ -45,6 +51,7 @@ func main() {
 	http.HandleFunc("/images", Images)
 	http.HandleFunc("/images/search", ImagesSearch)
 	http.HandleFunc("/disk-usage", DiskUsage)
+	http.HandleFunc("/info", Info)
 
 	HOST := "0.0.0.0"
 	PORT := "8080"
@@ -99,6 +106,16 @@ func DiskUsage(w http.ResponseWriter, r *http.Request) {
 	res.Status = http.StatusOK
 	dockerClient := DockerClient()
 	diskUsage, _ := dockerClient.DiskUsage(context.Background())
-	res.DiskInfo = diskUsage
+	res.DiskUsage = diskUsage
+	json.NewEncoder(w).Encode(res)
+}
+
+// Info handler
+func Info(w http.ResponseWriter, r *http.Request) {
+	res := InfoResponse{}
+	res.Status = http.StatusOK
+	dockerClient := DockerClient()
+	info, _ := dockerClient.Info(context.Background())
+	res.InfoResponse = info
 	json.NewEncoder(w).Encode(res)
 }
