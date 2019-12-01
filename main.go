@@ -27,7 +27,7 @@ func main() {
 	HOST := "0.0.0.0"
 	PORT := "8080"
 
-	fmt.Printf("Server runing in http://%s:%s \n", HOST, PORT)
+	fmt.Printf("Server running in http://%s:%s \n", HOST, PORT)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%s", HOST, PORT), nil))
 }
 
