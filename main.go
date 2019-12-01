@@ -13,25 +13,31 @@ import (
 	"github.com/docker/docker/client"
 )
 
-// Response type
-type Response struct {
-	Status       int                     `json:"status"`
-	Images       []types.ImageSummary    `json:"images"`
-	Term         string                  `json:"term"`
-	SearchResult []registry.SearchResult `json:"search_result"`
+// ImagesResponse type
+type ImagesResponse struct {
+	Status int                  `json:"status"`
+	Images []types.ImageSummary `json:"images"`
 }
 
-type fileHTML struct {
-	staticPath string
-	indexPath  string
+// ImagesSearchResponse type
+type ImagesSearchResponse struct {
+	Status int                     `json:"status"`
+	Term   string                  `json:"term"`
+	Images []registry.SearchResult `json:"images"`
+}
+
+// AbsoultePath type
+type AbsoultePath struct {
+	Static string
+	Index  string
 }
 
 func main() {
-	html := fileHTML{staticPath: "client/build", indexPath: "index.html"}
+	absolutePath := AbsoultePath{Static: "client/build", Index: "index.html"}
 
-	http.HandleFunc("/", html.handler)
-	http.HandleFunc("/images", index)
-	http.HandleFunc("/images/search", search)
+	http.HandleFunc("/", absolutePath.Serve)
+	http.HandleFunc("/images", Images)
+	http.HandleFunc("/images/search", ImagesSearch)
 
 	HOST := "0.0.0.0"
 	PORT := "8080"
@@ -40,35 +46,42 @@ func main() {
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%s", HOST, PORT), nil))
 }
 
-func dockerClient() (*client.Client, error) {
+// DockerClient to initialize docker client api
+func DockerClient() *client.Client {
 	dockerClient, err := client.NewEnvClient()
-	return dockerClient, err
+	if err != nil {
+		panic(err)
+	}
+	return dockerClient
 }
 
-func (html fileHTML) handler(w http.ResponseWriter, r *http.Request) {
+// Serve client html
+func (absolutePath AbsoultePath) Serve(w http.ResponseWriter, r *http.Request) {
 	path, _ := filepath.Abs(r.URL.Path)
-	path = filepath.Join(html.staticPath, path)
-	http.FileServer(http.Dir(html.staticPath)).ServeHTTP(w, r)
+	path = filepath.Join(absolutePath.Static, path)
+	http.FileServer(http.Dir(absolutePath.Static)).ServeHTTP(w, r)
 }
 
-func index(w http.ResponseWriter, r *http.Request) {
-	res := Response{}
+// Images handler to show all images
+func Images(w http.ResponseWriter, r *http.Request) {
+	res := ImagesResponse{}
 	res.Status = http.StatusOK
-	dockerClient, _ := dockerClient()
+	dockerClient := DockerClient()
 	images, _ := dockerClient.ImageList(context.Background(), types.ImageListOptions{})
 	res.Images = images
 	json.NewEncoder(w).Encode(res)
 }
 
-func search(w http.ResponseWriter, r *http.Request) {
+// ImagesSearch to list all images by term of serach
+func ImagesSearch(w http.ResponseWriter, r *http.Request) {
 	term := r.URL.Query().Get("term")
-	res := Response{}
+	res := ImagesSearchResponse{}
 	res.Status = http.StatusOK
 	res.Term = term
-	dockerClient, _ := dockerClient()
+	dockerClient := DockerClient()
 	searchTerm, _ := dockerClient.ImageSearch(context.Background(), term, types.ImageSearchOptions{
 		Limit: 100,
 	})
-	res.SearchResult = searchTerm
+	res.Images = searchTerm
 	json.NewEncoder(w).Encode(res)
 }
