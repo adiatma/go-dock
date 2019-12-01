@@ -69,6 +69,7 @@ func Images(w http.ResponseWriter, r *http.Request) {
 	dockerClient := DockerClient()
 	imageList, _ := dockerClient.ImageList(context.Background(), types.ImageListOptions{})
 	res.Images = imageList
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	json.NewEncoder(w).Encode(res)
 }
 
