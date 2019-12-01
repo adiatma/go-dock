@@ -27,7 +27,7 @@ type fileHTML struct {
 }
 
 func main() {
-	html := fileHTML{staticPath: "./", indexPath: "index.html"}
+	html := fileHTML{staticPath: "client/build", indexPath: "index.html"}
 
 	http.HandleFunc("/", html.handler)
 	http.HandleFunc("/images", index)
