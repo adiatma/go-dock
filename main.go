@@ -31,11 +31,16 @@ func main() {
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%s", HOST, PORT), nil))
 }
 
+func dockerClient() (*client.Client, error) {
+	dockerClient, err := client.NewEnvClient()
+	return dockerClient, err
+}
+
 func index(w http.ResponseWriter, r *http.Request) {
 	res := Response{}
 	res.Status = http.StatusOK
-	cli, _ := client.NewEnvClient()
-	images, _ := cli.ImageList(context.Background(), types.ImageListOptions{})
+	dockerClient, _ := dockerClient()
+	images, _ := dockerClient.ImageList(context.Background(), types.ImageListOptions{})
 	res.Images = images
 	json.NewEncoder(w).Encode(res)
 }
@@ -45,8 +50,8 @@ func search(w http.ResponseWriter, r *http.Request) {
 	res := Response{}
 	res.Status = http.StatusOK
 	res.Term = term
-	cli, _ := client.NewEnvClient()
-	searchTerm, _ := cli.ImageSearch(context.Background(), term, types.ImageSearchOptions{
+	dockerClient, _ := dockerClient()
+	searchTerm, _ := dockerClient.ImageSearch(context.Background(), term, types.ImageSearchOptions{
 		Limit: 100,
 	})
 	res.SearchResult = searchTerm
