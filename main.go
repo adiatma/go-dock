@@ -21,8 +21,8 @@ type Response struct {
 }
 
 func main() {
-	http.HandleFunc("/", index)
-	http.HandleFunc("/search", search)
+	http.HandleFunc("/images", index)
+	http.HandleFunc("/images/search", search)
 
 	HOST := "0.0.0.0"
 	PORT := "8080"
