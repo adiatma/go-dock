@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"path/filepath"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/registry"
@@ -20,7 +21,15 @@ type Response struct {
 	SearchResult []registry.SearchResult `json:"search_result"`
 }
 
+type fileHTML struct {
+	staticPath string
+	indexPath  string
+}
+
 func main() {
+	html := fileHTML{staticPath: "./", indexPath: "index.html"}
+
+	http.HandleFunc("/", html.handler)
 	http.HandleFunc("/images", index)
 	http.HandleFunc("/images/search", search)
 
@@ -34,6 +43,12 @@ func main() {
 func dockerClient() (*client.Client, error) {
 	dockerClient, err := client.NewEnvClient()
 	return dockerClient, err
+}
+
+func (html fileHTML) handler(w http.ResponseWriter, r *http.Request) {
+	path, _ := filepath.Abs(r.URL.Path)
+	path = filepath.Join(html.staticPath, path)
+	http.FileServer(http.Dir(html.staticPath)).ServeHTTP(w, r)
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
