@@ -15,7 +15,7 @@ import (
 // Response type
 type Response struct {
 	Status       int                     `json:"status"`
-	Images       []types.ImageSummary    `json:"results"`
+	Images       []types.ImageSummary    `json:"images"`
 	Term         string                  `json:"term"`
 	SearchResult []registry.SearchResult `json:"search_result"`
 }
