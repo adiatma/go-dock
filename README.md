@@ -12,6 +12,7 @@
 ## How to start?
 
 - Please `build` assets in `./client` before running server.
+- Copy `.env.example` to `.env`
 - Just `go run main.go` to running server.
 
 ## License
