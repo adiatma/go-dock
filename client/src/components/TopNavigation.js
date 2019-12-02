@@ -1,6 +1,6 @@
 // @flow
 import * as React from 'react';
-import { Navbar, NavbarBrand, NavbarToggler, Collapse, Nav, NavItem, NavLink } from 'reactstrap';
+import { Navbar, NavbarBrand, NavbarToggler, Collapse, Nav, NavItem } from 'reactstrap';
 import { Link } from 'react-router-dom'
 
 function TopNavigation(): React.Node {
@@ -15,7 +15,7 @@ function TopNavigation(): React.Node {
         <Collapse isOpen={isOpen} navbar>
           <Nav className="mr-auto" navbar>
             <NavItem>
-              <Link to={`/images`} style={{ textDecoration: 'none' }}>Images</Link>
+              <Link to={`/images`} style={{ textDecoration: 'none', color: 'black' }}>Images</Link>
             </NavItem>
           </Nav>
         </Collapse>
