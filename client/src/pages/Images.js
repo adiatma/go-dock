@@ -6,7 +6,7 @@ import {
   Dispatch,
   Action,
 } from 'easy-peasy'
-import {Table, Container, Badge} from 'reactstrap'
+import {Table, Container, Badge, Spinner} from 'reactstrap'
 
 import formatBytes from '../utils'
 
@@ -17,6 +17,8 @@ export default function Images(): React.Node {
   React.useEffect(() => {
     dispatch.images.getImages()
   }, [dispatch])
+
+  if (state.loading) return <Spinner style={{width: '3rem', height: '3rem'}} />
 
   return (
     <Container>
