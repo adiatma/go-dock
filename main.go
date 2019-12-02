@@ -3,12 +3,15 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/registry"
 	"github.com/docker/docker/client"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 // ImagesResponse type
@@ -48,8 +51,14 @@ func main() {
 	router.GET("/api/disk-usage", DiskUsage)
 	router.GET("/api/info", Info)
 
-	HOST := "0.0.0.0"
-	PORT := "8080"
+	err := godotenv.Load()
+
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	HOST := os.Getenv("HOST")
+	PORT := os.Getenv("PORT")
 
 	router.Run(fmt.Sprintf("%s:%s", HOST, PORT))
 }
