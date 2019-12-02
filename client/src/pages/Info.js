@@ -8,7 +8,6 @@ import {
 } from 'easy-peasy'
 import {
   Container,
-  Jumbotron,
   Badge,
   Spinner,
   Card,
@@ -17,11 +16,14 @@ import {
   CardSubtitle,
   CardText,
   CardDeck,
+  Table,
+  Button
 } from 'reactstrap'
+import { Link } from 'react-router-dom'
 
 import formatBytes from '../utils'
 
-export default function Info(): React.Node {
+export default (): React.Node => {
   const dispatch: Dispatch<{}, Action<any>> = useStoreDispatch()
   const stateInfo = useStoreState(state => state.info.defaultState)
   const stateDiskUsage = useStoreState(
@@ -38,28 +40,7 @@ export default function Info(): React.Node {
 
   return (
     <Container>
-      <Jumbotron>
-        <h1 className="display-3">Info</h1>
-        <p className="lead">
-          OS Type <Badge>{stateInfo.info.OSType}</Badge> / Kernel
-          Version <Badge>{stateInfo.info.KernelVersion}</Badge> /
-          OperatingSystem{' '}
-          <Badge>{stateInfo.info.OperatingSystem}</Badge>
-        </p>
-        <hr className="my-2" />
-        <p className="lead">
-          Memory <Badge>{formatBytes(stateInfo.info.MemTotal)}</Badge>{' '}
-        </p>
-        <p className="lead">
-          Containers <Badge>{stateInfo.info.Containers}</Badge> /
-          Containers running{' '}
-          <Badge>{stateInfo.info.ContainersRunning}</Badge> /
-          Containers paused{' '}
-          <Badge>{stateInfo.info.ContainersPaused}</Badge> /
-          Containers stoped{' '}
-          <Badge>{stateInfo.info.ContainersStopped}</Badge>
-        </p>
-      </Jumbotron>
+      {stateInfo && <Info info={stateInfo.info} />}
       {stateDiskUsage.disk && (
         <DiskUsage
           images={stateDiskUsage.disk.Images}
@@ -67,6 +48,38 @@ export default function Info(): React.Node {
         />
       )}
     </Container>
+  )
+}
+
+type InfoProps = {
+  info: {
+    OSType: string,
+    KernelVersion: string,
+    OperatingSystem: String,
+    MemTotal: number,
+  },
+}
+
+function Info({info}: InfoProps): React.Node {
+  return (
+    <Table responsive>
+      <thead>
+        <tr>
+          <th>OS type</th>
+          <th>Kernel Version</th>
+          <th>Operating System</th>
+          <th>Memory</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{info.OSType}</td>
+          <td>{info.KernelVersion}</td>
+          <td>{info.OperatingSystem}</td>
+          <td>{formatBytes(info.MemTotal)}</td>
+        </tr>
+      </tbody>
+    </Table>
   )
 }
 
@@ -79,16 +92,19 @@ function DiskUsage({images, containers}: DiskUsageProps): React.Node {
   return (
     <>
       <div style={{marginBottom: '1rem'}}>
-        <h2>Images</h2>
+        <h2><Link to={`/images`} style={{ color: "black" }}>Images</Link></h2>
         <CardDeck>
           {images.map(image => (
             <Card key={image.Id}>
               <CardBody>
                 <CardTitle>{image.RepoTags}</CardTitle>
                 <CardSubtitle>
-                  <Badge>{formatBytes(image.Size)}</Badge>
+                  <Badge color="info">{formatBytes(image.Size)}</Badge>
                 </CardSubtitle>
-                <CardText><code>{image.Id}</code></CardText>
+                <CardText>
+                  <code>{image.Id}</code>
+                </CardText>
+                <Button outline color="danger">Remove</Button>
               </CardBody>
             </Card>
           ))}
@@ -100,12 +116,15 @@ function DiskUsage({images, containers}: DiskUsageProps): React.Node {
           {containers.map(container => (
             <Card key={container.Id}>
               <CardBody>
-                <CardTitle>{container.Names[0]}</CardTitle>
+                <CardTitle>{container.Names}</CardTitle>
                 <CardSubtitle>
-                  <Badge>{formatBytes(container.SizeRootFs)}</Badge>
+                  <Badge color="info">{formatBytes(container.SizeRootFs)}</Badge>
                 </CardSubtitle>
                 <CardText>{container.Image}</CardText>
                 <CardText>{container.Status}</CardText>
+                <Button outline color="danger">Remove</Button>
+                <Button outline color="warning">Stop</Button>
+                <Button outline color="info">Run</Button>
               </CardBody>
             </Card>
           ))}
