@@ -54,6 +54,14 @@ const images: ImagesTypes = {
     } catch (error) {
       actions.error(error)
     }
+  }),
+  removeImage: thunk(async (actions, payload) => {
+    try {
+      await axios.delete(`/api/images/remove/${payload}`)
+      window.location.reload()
+    } catch (error) {
+      alert(error)
+    }
   })
 }
 
@@ -107,8 +115,20 @@ const diskUsage = {
   })
 }
 
+const container = {
+  deleteContainer: thunk(async (actions, payload) => {
+    try {
+      await axios.delete(`/api/container/remove/${payload}`)
+      window.location.reload()
+    } catch (error) {
+      alert(error)
+    }
+  })
+}
+
 export default {
   images,
   info,
   diskUsage,
+  container,
 }

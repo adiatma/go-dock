@@ -39,6 +39,12 @@ type InfoResponse struct {
 	InfoResponse interface{} `json:"info"`
 }
 
+// ContainerRemoveResponse type
+type ContainerRemoveResponse struct {
+	Status   int         `json:"status"`
+	Messages interface{} `json:"messages"`
+}
+
 func main() {
 	router := gin.Default()
 
@@ -50,6 +56,8 @@ func main() {
 	router.GET("/api/images/search", ImagesSearch)
 	router.GET("/api/disk-usage", DiskUsage)
 	router.GET("/api/info", Info)
+	router.DELETE("/api/container/remove/:containerID", ContainerRemove)
+	router.DELETE("/api/images/remove/:imageID", RemoveImage)
 
 	err := godotenv.Load()
 
@@ -101,6 +109,14 @@ func ImagesSearch(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, res)
 }
 
+// RemoveImage handler
+func RemoveImage(ctx *gin.Context) {
+	imageID := ctx.Param("imageID")
+	dockerClient := DockerClient()
+	message, _ := dockerClient.ImageRemove(context.Background(), imageID, types.ImageRemoveOptions{})
+	ctx.JSON(http.StatusAccepted, message)
+}
+
 // DiskUsage handler
 func DiskUsage(ctx *gin.Context) {
 	res := DiskUsageResponse{}
@@ -119,4 +135,15 @@ func Info(ctx *gin.Context) {
 	info, _ := dockerClient.Info(context.Background())
 	res.InfoResponse = info
 	ctx.JSON(http.StatusOK, res)
+}
+
+// ContainerRemove handler
+func ContainerRemove(ctx *gin.Context) {
+	res := ContainerRemoveResponse{}
+	res.Status = http.StatusAccepted
+	containerID := ctx.Param("containerID")
+	ctx.JSON(http.StatusAccepted, res)
+	dockerClient := DockerClient()
+	messages := dockerClient.ContainerRemove(context.Background(), containerID, types.ContainerRemoveOptions{})
+	res.Messages = messages
 }
