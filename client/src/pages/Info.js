@@ -5,6 +5,7 @@ import {
   Dispatch,
   Action,
   useStoreState,
+  useStoreActions,
 } from 'easy-peasy'
 import {
   Container,
@@ -89,6 +90,10 @@ type DiskUsageProps = {
 }
 
 function DiskUsage({images, containers}: DiskUsageProps): React.Node {
+  const deleteContainer = useStoreActions(actions => actions.container.deleteContainer)
+  const removeImage = useStoreActions(actions => actions.images.removeImage)
+  const handlerDeleteContainer = containerId => deleteContainer(containerId)
+  const handlerRemoveImage = imageID => removeImage(imageID)
   return (
     <>
       <div style={{marginBottom: '1rem'}}>
@@ -104,7 +109,7 @@ function DiskUsage({images, containers}: DiskUsageProps): React.Node {
                 <CardText>
                   <code>{image.Id}</code>
                 </CardText>
-                <Button outline color="danger">Remove</Button>
+                <Button outline color="danger" onClick={() => handlerRemoveImage(image.Id)}>Remove</Button>
               </CardBody>
             </Card>
           ))}
@@ -122,7 +127,7 @@ function DiskUsage({images, containers}: DiskUsageProps): React.Node {
                 </CardSubtitle>
                 <CardText>{container.Image}</CardText>
                 <CardText>{container.Status}</CardText>
-                <Button outline color="danger">Remove</Button>
+                <Button outline color="danger" onClick={() => handlerDeleteContainer(container.Id)}>Remove</Button>
                 <Button outline color="warning">Stop</Button>
                 <Button outline color="info">Run</Button>
               </CardBody>
