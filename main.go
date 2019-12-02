@@ -2,15 +2,13 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
-	"path/filepath"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/registry"
 	"github.com/docker/docker/client"
+	"github.com/gin-gonic/gin"
 )
 
 // ImagesResponse type
@@ -38,26 +36,22 @@ type InfoResponse struct {
 	InfoResponse interface{} `json:"info"`
 }
 
-// AbsoultePath type
-type AbsoultePath struct {
-	Static string
-	Index  string
-}
-
 func main() {
-	absolutePath := AbsoultePath{Static: "client/build", Index: "index.html"}
+	router := gin.Default()
 
-	http.HandleFunc("/", absolutePath.Serve)
-	http.HandleFunc("/images", Images)
-	http.HandleFunc("/images/search", ImagesSearch)
-	http.HandleFunc("/disk-usage", DiskUsage)
-	http.HandleFunc("/info", Info)
+	router.LoadHTMLGlob("client/build/*.html")
+	router.Static("/static", "./client/build/static")
+	router.GET("/", Serve)
+
+	router.GET("/api/images", Images)
+	router.GET("/api/images/search", ImagesSearch)
+	router.GET("/api/disk-usage", DiskUsage)
+	router.GET("/api/info", Info)
 
 	HOST := "0.0.0.0"
 	PORT := "8080"
 
-	fmt.Printf("Server running in http://%s:%s \n", HOST, PORT)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%s", HOST, PORT), nil))
+	router.Run(fmt.Sprintf("%s:%s", HOST, PORT))
 }
 
 // DockerClient to initialize docker client api
@@ -70,25 +64,23 @@ func DockerClient() *client.Client {
 }
 
 // Serve client html
-func (absolutePath AbsoultePath) Serve(w http.ResponseWriter, r *http.Request) {
-	path, _ := filepath.Abs(r.URL.Path)
-	path = filepath.Join(absolutePath.Static, path)
-	http.FileServer(http.Dir(absolutePath.Static)).ServeHTTP(w, r)
+func Serve(ctx *gin.Context) {
+	ctx.HTML(http.StatusOK, "index.html", gin.H{})
 }
 
 // Images handler to show all images
-func Images(w http.ResponseWriter, r *http.Request) {
+func Images(ctx *gin.Context) {
 	res := ImagesResponse{}
 	res.Status = http.StatusOK
 	dockerClient := DockerClient()
 	imageList, _ := dockerClient.ImageList(context.Background(), types.ImageListOptions{})
 	res.Images = imageList
-	json.NewEncoder(w).Encode(res)
+	ctx.JSON(http.StatusOK, res)
 }
 
 // ImagesSearch to list all images by term of serach
-func ImagesSearch(w http.ResponseWriter, r *http.Request) {
-	term := r.URL.Query().Get("term")
+func ImagesSearch(ctx *gin.Context) {
+	term := ctx.Query("term")
 	res := ImagesSearchResponse{}
 	res.Status = http.StatusOK
 	res.Term = term
@@ -97,25 +89,25 @@ func ImagesSearch(w http.ResponseWriter, r *http.Request) {
 		Limit: 100,
 	})
 	res.Images = imageSearch
-	json.NewEncoder(w).Encode(res)
+	ctx.JSON(http.StatusOK, res)
 }
 
 // DiskUsage handler
-func DiskUsage(w http.ResponseWriter, r *http.Request) {
+func DiskUsage(ctx *gin.Context) {
 	res := DiskUsageResponse{}
 	res.Status = http.StatusOK
 	dockerClient := DockerClient()
 	diskUsage, _ := dockerClient.DiskUsage(context.Background())
 	res.DiskUsage = diskUsage
-	json.NewEncoder(w).Encode(res)
+	ctx.JSON(http.StatusOK, res)
 }
 
 // Info handler
-func Info(w http.ResponseWriter, r *http.Request) {
+func Info(ctx *gin.Context) {
 	res := InfoResponse{}
 	res.Status = http.StatusOK
 	dockerClient := DockerClient()
 	info, _ := dockerClient.Info(context.Background())
 	res.InfoResponse = info
-	json.NewEncoder(w).Encode(res)
+	ctx.JSON(http.StatusOK, res)
 }
