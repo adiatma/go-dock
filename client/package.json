@@ -35,5 +35,6 @@
   },
   "devDependencies": {
     "flow-bin": "^0.112.0"
-  }
+  },
+  "proxy": "http://0.0.0.0:8080"
 }

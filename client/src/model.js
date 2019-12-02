@@ -2,18 +2,34 @@
 import { action, thunk, Action, Thunk } from 'easy-peasy'
 import axios from 'axios'
 
-type DefaultStateType = {
+type DefaultState = {
   loading: boolean,
   error: boolean,
   errorMessage: null,
+}
+
+type ImagesStateType = {
+  ...DefaultState,
   images: Array<any>,
 }
 
 type ImagesTypes = {
-  defaultState: DefaultStateType,
-  insertImages: Action<DefaultStateType, Array<any>>,
-  error: Action<DefaultStateType, any>,
+  defaultState: ImagesStateType,
+  insertImages: Action<ImagesStateType, Array<any>>,
+  error: Action<ImagesStateType, any>,
   getImages: Thunk<{}, void, any, {}, any>,
+}
+
+type InfoStateType = {
+  ...DefaultState,
+  info: null,
+}
+
+type InfoTypes = {
+  defaultState: InfoStateType,
+  insertInfo: Action<InfoStateType, any>,
+  error: Action<InfoStateType, any>,
+  getInfo: Thunk<{}, void, any, {}, any>,
 }
 
 const images: ImagesTypes = {
@@ -41,6 +57,32 @@ const images: ImagesTypes = {
   })
 }
 
+const info: InfoTypes = {
+  defaultState: {
+    loading: true,
+    error: false,
+    errorMessage: null,
+    info: null,
+  },
+  insertInfo: action((state, payload) => {
+    state.defaultState.loading = false
+    state.defaultState.info = payload
+  }),
+  error: action((state, error) => {
+    state.defaultState.error = true
+    state.defaultState.errorMessage = error
+  }),
+  getInfo: thunk(async (actions, payload) => {
+    try {
+      const request = await axios.get('/api/info')
+      actions.insertInfo(request.data.info)
+    } catch (error) {
+      actions.error(error)
+    }
+  })
+}
+
 export default {
   images,
+  info,
 }
