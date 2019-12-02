@@ -2,6 +2,8 @@
 
 > Maintain your docker images and container with GoDock
 
+![godock-ui](./docs/godock-ui.png)
+
 ## Features
 
 - [x] Show docker images
