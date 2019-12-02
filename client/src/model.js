@@ -82,7 +82,33 @@ const info: InfoTypes = {
   })
 }
 
+const diskUsage = {
+  defaultState: {
+    loading: true,
+    error: false,
+    errorMessage: null,
+    disk: null,
+  },
+  insertDiskUsage: action((state, payload) => {
+    state.defaultState.loading = false
+    state.defaultState.disk = payload
+  }),
+  error: action((state, error) => {
+    state.defaultState.error = true
+    state.defaultState.errorMessage = error
+  }),
+  getDiskUsage: thunk(async (actions, payload) => {
+    try {
+      const request = await axios.get('/api/disk-usage')
+      actions.insertDiskUsage(request.data.disk_usage)
+    } catch(error) {
+      actions.error(error)
+    }
+  })
+}
+
 export default {
   images,
   info,
+  diskUsage,
 }
