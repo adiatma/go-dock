@@ -1,6 +1,6 @@
 # Go Dock
 
-> Manage your docker images and container with GoDock.
+Manage your docker images and container with GoDock.
 
 ![godock-ui](./docs/godock-ui.png)
 
@@ -13,7 +13,6 @@
 
 ## How to start?
 
-- Please `build` assets in `./client` before running server.
 - Copy `.env.example` to `.env`
 - Just `go run main.go` to running server.
 
