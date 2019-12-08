@@ -1,6 +1,6 @@
 # Go Dock
 
-> Manage your docker images and container with GoDock.
+Manage your docker images and container with GoDock.
 
 ![godock-ui](./docs/godock-ui.png)
 
