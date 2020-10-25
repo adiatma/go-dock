@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "axios": "0.19.0",
+    "axios": "0.19.2",
     "bootstrap": "4.4.1",
     "easy-peasy": "3.2.6",
     "react": "16.12.0",
